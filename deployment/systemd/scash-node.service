@@ -1,0 +1,19 @@
+[Unit]
+Description=Scash node (scashd): the chain, the block templates and the pool wallet
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=scashpool
+# scash.conf: chain=scash, server=1, rpcuser/rpcpassword, rpcbind=127.0.0.1, rpcport=8342, fallbackfee=0.0001, addnode=<peers>, see docs/INSTALL.md
+ExecStart=/opt/scash/bin/scashd -datadir=/opt/scash/data -conf=/opt/scash/data/scash.conf -printtoconsole
+Restart=on-failure
+RestartSec=30
+LimitNOFILE=65536
+TimeoutStopSec=180
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,17 @@
+[Unit]
+Description=Scash pool: charts data collector (hash rate, difficulty, miners, workers on the home page)
+After=scash-pool-redis.service scash-pool-api.service
+Requires=scash-pool-redis.service
+[Service]
+Type=simple
+User=scashpool
+WorkingDirectory=/opt/scash-nodejs-pool
+ExecStart=/usr/bin/node /opt/scash-nodejs-pool/init.js -module=chartsDataCollector
+Restart=always
+RestartSec=5
+TimeoutStopSec=30
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

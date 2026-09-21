@@ -1,0 +1,17 @@
+[Unit]
+Description=Scash pool: payment processor (sendmany from the pool wallet; emergency brake: deployment/pause-payments.sh)
+After=scash-pool-redis.service scash-node.service
+Requires=scash-pool-redis.service
+[Service]
+Type=simple
+User=scashpool
+WorkingDirectory=/opt/scash-nodejs-pool
+ExecStart=/usr/bin/node /opt/scash-nodejs-pool/init.js -module=payments
+Restart=always
+RestartSec=15
+TimeoutStopSec=30
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
