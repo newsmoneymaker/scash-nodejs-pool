@@ -13,10 +13,10 @@ var poolHost = "scash.pool-pay.com";
 var poolNotice = {en: "", ru: ""};
 
 // Contact / community links (leave empty to hide)
-var email = "";
+var email = "admin@pool-pay.com";
 var telegram = "";
 var discord = "";
-var github = "";
+var github = "https://github.com/newsmoneymaker/scash-nodejs-pool";
 var minerDownload = "/downloads/";      // poolpayminer (optional menu item; leave empty to hide)
 
 // No exchange data source for Scash here, market widgets are hidden

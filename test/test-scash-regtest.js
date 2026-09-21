@@ -123,6 +123,19 @@ function rpc (method, params, wallet) {
 	const credit = (tx.details || []).reduce((s, d) => s + (['generate', 'immature'].indexOf(d.category) !== -1 ? d.amount : 0), 0);
 	check('the pool wallet sees the immature coinbase', credit > 0, 'credit ' + credit);
 
+	// payouts as the payment processor sends them: the coinbase matures after 100 blocks, then sendmany with subtractfeefrom, as in lib/paymentProcessor.js
+	await rpc('generatetoaddress', [100, minerAddress]);
+	const spendable = await rpc('getbalance', ['*', 1], 'pool');
+	check('the matured coinbase is spendable (getbalance "*" 1)', spendable >= 49, 'balance ' + spendable);
+	const payee = (await rpc('getnewaddress', ['', 'bech32'], 'pool'));
+	const sent = await rpc('sendmany', ['', {[payee]: 1.5}, 1, 'scash-pool batch 1', [payee]], 'pool');
+	check('sendmany with subtractfeefrom returns a txid', typeof sent === 'string' && sent.length === 64, String(sent).slice(0, 20));
+	await rpc('generatetoaddress', [1, minerAddress]);
+	const ptx = await rpc('gettransaction', [sent], 'pool');
+	check('the payout is confirmed and carries the batch comment', ptx.confirmations >= 1 && ptx.comment === 'scash-pool batch 1', 'confirmations ' + ptx.confirmations + ' comment ' + ptx.comment);
+	const lt = await rpc('listtransactions', ['*', 20], 'pool');
+	check('the payout is found in the wallet log by its comment', lt.some(t => t.txid === sent && t.comment === 'scash-pool batch 1'));
+
 	if (process.env.MINER_BIN) {
 		// the real miner: any build of poolpayminer with the algorithm rx/scash
 		const before = await rpc('getblockcount');
